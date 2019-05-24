@@ -9,33 +9,11 @@ using PluralityIntervals = std::list<Interval>;
 
 void SplitAndIntersection(PluralityIntervals& plurality, PluralityIntervals& pluralityDC);
 
-void StartMethod( PluralityIntervals& plurality, PluralityIntervals& ans )
-{
-	if (plurality.size())
-	{
-	
-		PluralityIntervals DC;
-
-		SplitAndIntersection( plurality, DC);
-
-		ans.swap(plurality);
-		
-		if (DC.size())
-		{
-			PluralityIntervals addition;
-			StartMethod(DC, addition);
-
-			//нужно определить в начало или в конец ставить новое пришедшее множество
-		
-			ans.splice(ans.end(), addition, addition.begin(), addition.end());
-		}
-	}
-}
 
 int CountDrops(Interval& a, Interval& b)
 {
 	int count = 0;
-	for ( int i = 0; i < max(a.size(), b.size()); ++i)
+	for (int i = 0; i < max(a.size(), b.size()); ++i)
 	{
 		if (i >= a.size())
 		{
@@ -79,6 +57,31 @@ void PushPlurality(PluralityIntervals& plurality, PluralityIntervals& add)
 		plurality.splice(plurality.end(), add, add.begin(), add.end());
 	}
 }
+
+
+void StartMethod( PluralityIntervals& plurality, PluralityIntervals& ans )
+{
+	if (plurality.size())
+	{
+	
+		PluralityIntervals DC;
+
+		SplitAndIntersection( plurality, DC);
+
+		ans.swap(plurality);
+		
+		if (DC.size())
+		{
+			PluralityIntervals addition;
+			StartMethod(DC, addition);
+		
+			PushPlurality(ans, addition);
+			//ans.splice(ans.end(), addition, addition.begin(), addition.end());
+		}
+	}
+}
+
+
 
 int MaxDefinedWithDiff(PluralityIntervals& plurality)
 {
@@ -163,30 +166,30 @@ void SplitAndIntersection( PluralityIntervals& plurality, PluralityIntervals& pl
 				zero.push_back(interval);
 			else
 			{
-				bool flag = false;
-				for (auto& i : one)
-				{
-					Interval tmp = interval & i;
-					if (tmp.size() != 0)
-					{
-						i = tmp;
-						flag = true;
-						break;
-					}
-				}
-				if(!flag)
-					for (auto& i : zero)
-					{
-						Interval tmp = interval & i;
-						if (tmp.size() != 0)
-						{
-							i = tmp;
-							flag = true;
-							break;
-						}
-					}
+				//bool flag = false;
+				//for (auto& i : one)
+				//{
+				//	Interval tmp = interval & i;
+				//	if (tmp.size() != 0)
+				//	{
+				//		i = tmp;
+				//		flag = true;
+				//		break;
+				//	}
+				//}
+				//if(!flag)
+				//	for (auto& i : zero)
+				//	{
+				//		Interval tmp = interval & i;
+				//		if (tmp.size() != 0)
+				//		{
+				//			i = tmp;
+				//			flag = true;
+				//			break;
+				//		}
+				//	}
 
-				if(!flag)
+				//if(!flag)
 					DC.push_back(interval);
 			}
 		}
@@ -196,27 +199,27 @@ void SplitAndIntersection( PluralityIntervals& plurality, PluralityIntervals& pl
 	}
 
 
-	//for ( auto& dcInterval : DC)
-	//{
-	//	bool flag = false;
-	//	for ( auto& ansInterval : ans)
-	//	{
-	//		Interval tmp = ansInterval & dcInterval;
-	//		if (tmp.size() != 0)
-	//		{
-	//			ansInterval = tmp;
-	//			flag = true;
-	//			break;
-	//		}
-	//	}
-	//	if (!flag)
-	//	{
-	//		pluralityDC.push_back(dcInterval);
-	//	}
-	//}
+	for ( auto& dcInterval : DC)
+	{
+		bool flag = false;
+		for ( auto& ansInterval : ans)
+		{
+			Interval tmp = ansInterval & dcInterval;
+			if (tmp.size() != 0)
+			{
+				ansInterval = tmp;
+				flag = true;
+				break;
+			}
+		}
+		if (!flag)
+		{
+			pluralityDC.push_back(dcInterval);
+		}
+	}
 
 	plurality.swap(ans);
-	pluralityDC.splice(pluralityDC.end(), DC, DC.begin(), DC.end());
+	//pluralityDC.splice(pluralityDC.end(), DC, DC.begin(), DC.end());
 }
 
 
@@ -247,7 +250,7 @@ int main()
 	std::ifstream in;
 	std::ofstream out;
 	
-	std::wstring path(L"C:\\Users\\ShlR0\\source\\repos\\kursovaya2\\kursovaya2\\pr\\"), inFile(L"*.txt"), outFolder(L"ans\\");
+	std::wstring path(L"C:\\Users\\ShlR0\\source\\repos\\kursovaya2\\kursovaya2\\pr\\"), inFile(L"*.txt"), outFolder(L"ans2\\");
 
 	WIN32_FIND_DATAW folder;
 
