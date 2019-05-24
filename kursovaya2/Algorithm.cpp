@@ -8,6 +8,7 @@
 using PluralityIntervals = std::list<Interval>;
 
 void SplitAndIntersection(PluralityIntervals& plurality, PluralityIntervals& pluralityDC);
+void SplitAndIntersectionRec(PluralityIntervals& plurality, PluralityIntervals& pluralityDC);
 
 
 int CountDrops(Interval& a, Interval& b)
@@ -59,35 +60,11 @@ void PushPlurality(PluralityIntervals& plurality, PluralityIntervals& add)
 }
 
 
-void StartMethod( PluralityIntervals& plurality, PluralityIntervals& ans )
-{
-	if (plurality.size())
-	{
-	
-		PluralityIntervals DC;
-
-		SplitAndIntersection( plurality, DC);
-
-		ans.swap(plurality);
-		
-		if (DC.size())
-		{
-			PluralityIntervals addition;
-			StartMethod(DC, addition);
-		
-			PushPlurality(ans, addition);
-			//ans.splice(ans.end(), addition, addition.begin(), addition.end());
-		}
-	}
-}
-
-
-
 int MaxDefinedWithDiff(PluralityIntervals& plurality)
 {
 	int max = 0, pos = -1;
 
-	for ( int i = 0; i < plurality.begin()->size(); ++i)
+	for (int i = 0; i < plurality.begin()->size(); ++i)
 	{
 		int count = 0;
 		bool flagOne = false, flagZero = false;
@@ -111,6 +88,32 @@ int MaxDefinedWithDiff(PluralityIntervals& plurality)
 
 	return pos;
 }
+
+
+
+void StartMethod( PluralityIntervals& plurality, PluralityIntervals& ans )
+{
+	if (plurality.size())
+	{
+	
+		PluralityIntervals DC;
+
+		SplitAndIntersectionRec( plurality, DC);
+
+		ans.swap(plurality);
+		
+		if (DC.size())
+		{
+			PluralityIntervals addition;
+			StartMethod(DC, addition);
+		
+			PushPlurality(ans, addition);
+			//ans.splice(ans.end(), addition, addition.begin(), addition.end());
+		}
+	}
+}
+
+
 
 
 void SplitAndIntersection( PluralityIntervals& plurality, PluralityIntervals& pluralityDC )
@@ -222,6 +225,68 @@ void SplitAndIntersection( PluralityIntervals& plurality, PluralityIntervals& pl
 	//pluralityDC.splice(pluralityDC.end(), DC, DC.begin(), DC.end());
 }
 
+
+void SplitAndIntersectionRec(PluralityIntervals& plurality, PluralityIntervals& pluralityDC)
+{
+
+	PluralityIntervals one;
+	PluralityIntervals zero;
+	PluralityIntervals DC;
+
+	int splitPos = MaxDefinedWithDiff(plurality);
+	if (splitPos == -1)
+	{
+		Interval Interaction = plurality.back();
+		plurality.pop_back();
+		while (!plurality.empty())
+		{
+			Interaction &= plurality.back();
+			plurality.pop_back();
+		}
+		plurality.push_back(Interaction);
+	}
+
+	if (plurality.size() == 1)
+	{
+		return;
+	}
+
+	one.clear();
+	zero.clear();
+	for (auto& interval : plurality)
+	{
+		if ((char)interval[splitPos] == '1')
+			one.push_back(interval);
+		else if ((char)interval[splitPos] == '0')
+			zero.push_back(interval);
+		else
+			DC.push_back(interval);
+	}
+
+	SplitAndIntersectionRec(one, pluralityDC);
+	plurality.swap(one);
+	SplitAndIntersectionRec(zero, pluralityDC);
+	PushPlurality(plurality, zero);
+
+	for (auto& dcInterval : DC)
+	{
+		bool flag = false;
+		for (auto& ansInterval : plurality)
+		{
+			Interval tmp = ansInterval & dcInterval;
+			if (tmp.size() != 0)
+			{
+				ansInterval = tmp;
+				flag = true;
+				break;
+			}
+		}
+		if (!flag)
+		{
+			pluralityDC.push_back(dcInterval);
+		}
+	}
+}
 
 
 int main()
