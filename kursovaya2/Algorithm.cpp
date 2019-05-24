@@ -2,7 +2,8 @@
 #include "Interval.h"
 #include <queue>
 #include <list>
-
+#include <Windows.h>
+#include <fstream>
 
 using PluralityIntervals = std::list<Interval>;
 
@@ -31,6 +32,53 @@ void StartMethod( PluralityIntervals& plurality, PluralityIntervals& ans )
 	}
 }
 
+int CountDrops(Interval& a, Interval& b)
+{
+	int count = 0;
+	for ( int i = 0; i < max(a.size(), b.size()); ++i)
+	{
+		if (i >= a.size())
+		{
+			if (b[i] != '0')
+				++count;
+		}
+		else if (i >= b.size())
+		{
+			if (a[i] != '0')
+				++count;
+		}
+		else if (a[i] != '-' && b[i] != '-' && a[i] != b[i])
+		{
+			++count;
+		}
+
+	}
+
+	return count;
+}
+
+void PushPlurality(PluralityIntervals& plurality, PluralityIntervals& add)
+{
+	if (plurality.size() > 0 && add.size() > 0)
+	{
+		Interval pluralityFront = plurality.front();
+		Interval pluralityBack = plurality.back();
+		Interval addFront = add.front();
+		Interval addBack = add.back();
+
+		int pushFront = CountDrops(pluralityFront, addBack);
+		int pushBack = CountDrops(pluralityBack, addFront);
+
+		if (pushFront < pushBack)
+			plurality.splice(plurality.begin(), add, add.begin(), add.end());
+		else
+			plurality.splice(plurality.end(), add, add.begin(), add.end());
+	}
+	else
+	{
+		plurality.splice(plurality.end(), add, add.begin(), add.end());
+	}
+}
 
 int MaxDefinedWithDiff(PluralityIntervals& plurality)
 {
@@ -100,7 +148,8 @@ void SplitAndIntersection( PluralityIntervals& plurality, PluralityIntervals& pl
 
 		if (current.size() == 1)
 		{
-			ans.push_back(current.back());
+			//ans.push_back(current.back());
+			PushPlurality(ans, current);
 			continue;
 		}
 
@@ -120,7 +169,7 @@ void SplitAndIntersection( PluralityIntervals& plurality, PluralityIntervals& pl
 					Interval tmp = interval & i;
 					if (tmp.size() != 0)
 					{
-						interval = tmp;
+						i = tmp;
 						flag = true;
 						break;
 					}
@@ -131,7 +180,7 @@ void SplitAndIntersection( PluralityIntervals& plurality, PluralityIntervals& pl
 						Interval tmp = interval & i;
 						if (tmp.size() != 0)
 						{
-							interval = tmp;
+							i = tmp;
 							flag = true;
 							break;
 						}
@@ -146,7 +195,28 @@ void SplitAndIntersection( PluralityIntervals& plurality, PluralityIntervals& pl
 		qPlurality.push(zero);
 	}
 
+
+	//for ( auto& dcInterval : DC)
+	//{
+	//	bool flag = false;
+	//	for ( auto& ansInterval : ans)
+	//	{
+	//		Interval tmp = ansInterval & dcInterval;
+	//		if (tmp.size() != 0)
+	//		{
+	//			ansInterval = tmp;
+	//			flag = true;
+	//			break;
+	//		}
+	//	}
+	//	if (!flag)
+	//	{
+	//		pluralityDC.push_back(dcInterval);
+	//	}
+	//}
+
 	plurality.swap(ans);
+	pluralityDC.splice(pluralityDC.end(), DC, DC.begin(), DC.end());
 }
 
 
@@ -154,24 +224,70 @@ void SplitAndIntersection( PluralityIntervals& plurality, PluralityIntervals& pl
 int main()
 {
 
-	std::string v1("-11-0");
-	std::string v2("10-1-");
-	std::string v3("-0110");
-	std::string v4("00-10");
-	std::string v5("1-0-1");
+	//std::string v1("-11-0");
+	//std::string v2("10-1-");
+	//std::string v3("-0110");
+	//std::string v4("00-10");
+	//std::string v5("1-0-1");
 
-	PluralityIntervals p, ans;
-	p.push_back(v1);
-	p.push_back(v2);
-	p.push_back(v3);
-	p.push_back(v4);
-	p.push_back(v5);
+	//PluralityIntervals p, ans;
+	//p.push_back(v1);
+	//p.push_back(v2);
+	//p.push_back(v3);
+	//p.push_back(v4);
+	//p.push_back(v5);
 
-	StartMethod(p, ans);
+	//StartMethod(p, ans);
 
-	for (auto& i: ans)
+	//for (auto& i: ans)
+	//{
+	//	std::cout << i.to_str()<<std::endl;
+	//}
+
+	std::ifstream in;
+	std::ofstream out;
+	
+	std::wstring path(L"C:\\Users\\ShlR0\\source\\repos\\kursovaya2\\kursovaya2\\pr\\"), inFile(L"*.txt"), outFolder(L"ans\\");
+
+	WIN32_FIND_DATAW folder;
+
+	HANDLE const hr = FindFirstFileW((path + inFile).c_str(), &folder);
+
+	if (INVALID_HANDLE_VALUE != hr)
 	{
-		std::cout << i.to_str()<<std::endl;
+		do
+		{
+			inFile = &folder.cFileName[0];
+
+			in.open((path + inFile).c_str());
+			out.open((path + outFolder + inFile).c_str());
+			if (in.is_open() && out.is_open())
+			{
+
+				std::string str;
+				PluralityIntervals Intervals, Ans;
+
+				while (!in.eof())
+				{
+					in >> str;
+					Intervals.push_back(Interval(str));
+				}
+
+				StartMethod(Intervals, Ans);
+
+				out << Ans.size() << std::endl;
+				for (auto& i : Ans)
+					out << i.to_str() << std::endl;
+
+				in.close();
+				out.close();
+			}
+
+		} while (NULL != FindNextFileW(hr, &folder));
+		FindClose(hr);
 	}
 
+	std::cout << "end";
+
+	return 0;
 }
