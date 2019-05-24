@@ -10,7 +10,6 @@ using PluralityIntervals = std::list<Interval>;
 void SplitAndIntersection(PluralityIntervals& plurality, PluralityIntervals& pluralityDC);
 void SplitAndIntersectionRec(PluralityIntervals& plurality, PluralityIntervals& pluralityDC);
 
-
 int CountDrops(Interval& a, Interval& b)
 {
 	int count = 0;
@@ -59,6 +58,32 @@ void PushPlurality(PluralityIntervals& plurality, PluralityIntervals& add)
 	}
 }
 
+void sort(PluralityIntervals& p, uint64_t pos)
+{
+	if (p.size() <= 2 || pos >= p.front().size() || pos < 0)
+		return;
+	
+	PluralityIntervals one, zero, m;
+	for (auto& i : p)
+	{
+		if (i[pos] == '1')
+			one.push_back(i);
+		else if (i[pos] == '0')
+			zero.push_back(i);
+		else
+			m.push_back(i);
+	}
+	
+
+	sort(one, pos+1);
+	sort(zero, pos+1);
+	sort(m, pos+1);
+
+	p.clear();
+	PushPlurality(p, one);
+	PushPlurality(p, zero);
+	PushPlurality(p, m);
+}
 
 int MaxDefinedWithDiff(PluralityIntervals& plurality)
 {
@@ -168,32 +193,38 @@ void SplitAndIntersection( PluralityIntervals& plurality, PluralityIntervals& pl
 			else if ((char)interval[splitPos] == '0')
 				zero.push_back(interval);
 			else
-			{
-				//bool flag = false;
-				//for (auto& i : one)
-				//{
-				//	Interval tmp = interval & i;
-				//	if (tmp.size() != 0)
-				//	{
-				//		i = tmp;
-				//		flag = true;
-				//		break;
-				//	}
-				//}
-				//if(!flag)
-				//	for (auto& i : zero)
-				//	{
-				//		Interval tmp = interval & i;
-				//		if (tmp.size() != 0)
-				//		{
-				//			i = tmp;
-				//			flag = true;
-				//			break;
-				//		}
-				//	}
+				DC.push_back(interval);
+		}
 
-				//if(!flag)
-					DC.push_back(interval);
+		for (auto& dcInterval : DC)
+		{
+			bool flag = false;
+			for (auto& ansInterval : one)
+			{
+				Interval tmp = ansInterval & dcInterval;
+				if (tmp.size() != 0)
+				{
+					ansInterval = tmp;
+					flag = true;
+					break;
+				}
+			}
+			if (!flag)
+			{
+				for (auto& ansInterval : zero)
+				{
+					Interval tmp = ansInterval & dcInterval;
+					if (tmp.size() != 0)
+					{
+						ansInterval = tmp;
+						flag = true;
+						break;
+					}
+				}
+			}
+			if (!flag)
+			{
+				pluralityDC.push_back(dcInterval);
 			}
 		}
 
@@ -202,24 +233,24 @@ void SplitAndIntersection( PluralityIntervals& plurality, PluralityIntervals& pl
 	}
 
 
-	for ( auto& dcInterval : DC)
-	{
-		bool flag = false;
-		for ( auto& ansInterval : ans)
-		{
-			Interval tmp = ansInterval & dcInterval;
-			if (tmp.size() != 0)
-			{
-				ansInterval = tmp;
-				flag = true;
-				break;
-			}
-		}
-		if (!flag)
-		{
-			pluralityDC.push_back(dcInterval);
-		}
-	}
+	//for ( auto& dcInterval : DC)
+	//{
+	//	bool flag = false;
+	//	for ( auto& ansInterval : ans)
+	//	{
+	//		Interval tmp = ansInterval & dcInterval;
+	//		if (tmp.size() != 0)
+	//		{
+	//			ansInterval = tmp;
+	//			flag = true;
+	//			break;
+	//		}
+	//	}
+	//	if (!flag)
+	//	{
+	//		pluralityDC.push_back(dcInterval);
+	//	}
+	//}
 
 	plurality.swap(ans);
 	//pluralityDC.splice(pluralityDC.end(), DC, DC.begin(), DC.end());
@@ -342,6 +373,8 @@ int main()
 				}
 
 				StartMethod(Intervals, Ans);
+
+				sort(Ans, 0);
 
 				out << Ans.size() << std::endl;
 				for (auto& i : Ans)
