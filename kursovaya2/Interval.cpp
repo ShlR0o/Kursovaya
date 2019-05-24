@@ -14,7 +14,7 @@ Interval::Interval():
 	m_unkComp[0] = 0;
 }
 
-Interval::Interval(Interval& r):
+Interval::Interval(Interval const& r):
 	m_size(r.m_size),
 	m_ASize(r.m_ASize)
 {
@@ -24,7 +24,7 @@ Interval::Interval(Interval& r):
 	_copy(r);
 }
 
-Interval::Interval(Interval && r):
+Interval::Interval(Interval const&& r):
 	m_size(r.m_size),
 	m_ASize(r.m_ASize)
 {
@@ -52,12 +52,12 @@ Interval::Interval(std::string && str):
 	_str_to(str);
 }
 
-Interval & Interval::operator=(Interval & r)
+Interval & Interval::operator=(Interval const& r)
 {
 	return operator=(std::move(r));
 }
 
-Interval & Interval::operator=(Interval && r)
+Interval & Interval::operator=(Interval const&& r)
 {
 	m_size = r.m_size;
 	_myRealloc(r.m_ASize);
@@ -66,12 +66,12 @@ Interval & Interval::operator=(Interval && r)
 	return *this;
 }
 
-Interval & Interval::operator=(std::string & str)
+Interval & Interval::operator=(std::string const& str)
 {
 	return operator=(std::move(str));
 }
 
-Interval & Interval::operator=(std::string && str)
+Interval & Interval::operator=(std::string const&& str)
 {
 	m_size = str.size();
 	_myRealloc(str.size() / 8 + 1);
@@ -211,7 +211,7 @@ int Interval::size()
 	return m_size;
 }
 
-void Interval::_str_to(std::string & str)
+void Interval::_str_to(std::string const& str)
 {
 	byte tmp = 0;
 	byte tmpUnk = 0;
@@ -252,7 +252,7 @@ void Interval::_clear()
 	}
 }
 
-void Interval::_copy(Interval& r)
+void Interval::_copy(Interval const& r)
 {
 	for (int i = 0; i < m_ASize; ++i)
 	{

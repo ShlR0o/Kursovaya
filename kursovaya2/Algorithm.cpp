@@ -73,9 +73,8 @@ void SplitAndIntersection( PluralityIntervals& plurality, PluralityIntervals& pl
 	//	5. Вернуть ответ и те вектора что не получилось пересечь с ответным 
 	/////////////////////////////////////////////////////////////////////////////////////////////	
 
-	PluralityIntervals DC;
 	PluralityIntervals ans;
-
+	PluralityIntervals DC;
 	std::queue<PluralityIntervals> qPlurality;
 	qPlurality.push(plurality);
 
@@ -114,30 +113,37 @@ void SplitAndIntersection( PluralityIntervals& plurality, PluralityIntervals& pl
 			else if ((char)interval[splitPos] == '0')
 				zero.push_back(interval);
 			else
-				DC.push_back(interval);
+			{
+				bool flag = false;
+				for (auto& i : one)
+				{
+					Interval tmp = interval & i;
+					if (tmp.size() != 0)
+					{
+						interval = tmp;
+						flag = true;
+						break;
+					}
+				}
+				if(!flag)
+					for (auto& i : zero)
+					{
+						Interval tmp = interval & i;
+						if (tmp.size() != 0)
+						{
+							interval = tmp;
+							flag = true;
+							break;
+						}
+					}
+
+				if(!flag)
+					DC.push_back(interval);
+			}
 		}
 
 		qPlurality.push(one);
 		qPlurality.push(zero);
-	}
-
-
-	for ( auto& dcInterval : DC)
-	{
-		bool flag = false;
-		for ( auto& ansInterval : ans)
-		{
-			Interval tmp = ansInterval & dcInterval;
-			if (tmp.size() != 0)
-			{
-				flag = true;
-				break;
-			}
-		}
-		if (!flag)
-		{
-			pluralityDC.push_back(dcInterval);
-		}
 	}
 
 	plurality.swap(ans);

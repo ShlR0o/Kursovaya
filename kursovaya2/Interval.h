@@ -7,14 +7,14 @@ class Interval
 public:
 	
 	Interval();
-	Interval(Interval& r);
-	Interval(Interval&& r);
+	Interval(Interval const & r);
+	Interval(Interval const && r);
 	Interval(std::string& str);
 	Interval(std::string&& str);
-	Interval& operator=(Interval& r);
-	Interval& operator=(Interval&& r);
-	Interval& operator=(std::string& str);
-	Interval& operator=(std::string&& str);
+	Interval& operator=(Interval const & r);
+	Interval& operator=(Interval const && r);
+	Interval& operator=(std::string const & str);
+	Interval& operator=(std::string const && str);
 	~Interval();
 
 	Interval operator&(Interval& r);
@@ -26,9 +26,9 @@ public:
 	int size();
 
 private:
-	void _str_to(std::string& str);
+	void _str_to(std::string const& str);
 	inline void _clear();
-	inline void _copy(Interval& r);
+	inline void _copy(Interval const& r);
 	inline void _myRealloc(int newSize);
 
 	byte *m_certainComp;
