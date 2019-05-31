@@ -44,11 +44,13 @@ ProxyBit & ProxyBit::operator=(ProxyBit && r)
 	{
 		offsetToCurrent(mask, r.m_pos);
 		m_cer[0] |= mask;
+		m_unk[0] &= (~mask);
 	}
 	else
 	{
 		offsetToCurrent(mask, r.m_pos);
 		m_cer[0] &= (~mask);
+		m_unk[0] &= (~mask);
 	}
 
 	return *this;
@@ -69,10 +71,15 @@ ProxyBit & ProxyBit::operator=(char && r)
 		m_cer[0] &= (~(*m_unk));
 	}
 	else if (r == '1')
+	{
 		m_cer[0] |= tmp;
+		m_unk[0] &= (~tmp);
+	}
 	else if (r == '0')
+	{
 		m_cer[0] &= (~tmp);
-
+		m_unk[0] &= (~tmp);
+	}
 	return *this;
 
 }

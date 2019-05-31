@@ -151,12 +151,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="algorithmObj.h" />
     <ClInclude Include="Interval.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="ProxyBit.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Algorithm.cpp" />
+    <ClCompile Include="algorithmObj.cpp" />
     <ClCompile Include="Interval.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pch.cpp">
