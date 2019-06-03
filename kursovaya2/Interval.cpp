@@ -80,8 +80,6 @@ Interval & Interval::operator=(std::string const&& str)
 	return *this;
 }
 
-
-
 Interval::~Interval()
 {
 	_clear();

@@ -1,6 +1,9 @@
 #pragma once
 #include "ProxyBit.h"
 
+class Interval;
+
+using PluralityIntervals = std::list<Interval>;
 
 class Interval
 {

@@ -2,8 +2,7 @@
 #include "algorithmObj.h"
 
 
-
-void algorithmObj::method(PluralityIntervals & plurality, PluralityIntervals & ans)
+void algorithmObj::method(PluralityIntervals plurality, PluralityIntervals & ans)
 {
 	StartMethod(plurality, ans);
 	AddComponentDefinition(ans);

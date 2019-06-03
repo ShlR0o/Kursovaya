@@ -93,7 +93,6 @@ ProxyBit::operator char()
 	return (tmp & m_cer[0]) ? '1' : '0';
 }
 
-
 ProxyBit::~ProxyBit()
 {
 }
